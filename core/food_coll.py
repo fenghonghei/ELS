@@ -27,9 +27,10 @@ async def get_foods(shop_id):
                                 price = original_price
                             recent_popularity = src_item['specfoods'][0]['recent_popularity']
                             old_food = dbsession.query(Food).filter(Food.id == food_id).first()
-                            if old_food and old_food.recent_popularity != recent_popularity:
+                            if old_food and old_food.recent_popularity != recent_popularity or old_food.price != price:
                                 dbsession.add(Record(
                                     food_id=food_id,
+                                    old_price=old_food.price,
                                     price=price,
                                     old_popularity=old_food.recent_popularity,
                                     new_popularity=recent_popularity,
