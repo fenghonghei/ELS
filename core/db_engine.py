@@ -58,3 +58,6 @@ Base.metadata.create_all(engine)
 # 创建与数据库的会话session class ,注意,这里返回给session的是个class,不是实例
 DBSession = sessionmaker(bind=engine, autoflush=False)
 dbsession = DBSession()
+dbsession.execute('alter table records convert to character set utf8;')
+dbsession.execute('alter table foods convert to character set utf8;')
+dbsession.execute('alter table shops convert to character set utf8;')
