@@ -10,6 +10,18 @@ Base = declarative_base()
 
 
 # 定义表结构
+class Latlng(Base):
+    # 表名
+    __tablename__ = 'latlngs'
+    # 定义id,主键唯一,
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    city = Column(String(50))
+    address = Column(String(100))
+    lat_lng = Column(String(50))
+    create_time = Column(TIMESTAMP(True), nullable=False)
+
+
+# 定义表结构
 class Shop(Base):
     # 表名
     __tablename__ = 'shops'
