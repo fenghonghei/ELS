@@ -46,6 +46,7 @@ class Record(Base):
     # 定义id,主键唯一,
     id = Column(Integer, primary_key=True, autoincrement=True)
     food_id = Column(Integer, ForeignKey('foods.id'))
+    old_price = Column(Integer)
     price = Column(Integer)
     old_popularity = Column(Integer)
     new_popularity = Column(Integer)
