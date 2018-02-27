@@ -1,8 +1,9 @@
 from core.db_engine import dbsession, FoodConcept
 
+CONCEPT_PATH = '../dependence/food_concept'
 
 if __name__ == '__main__':
-    with open('/home/liuzhf/workspace/projects/ELS/dependence/food_concept', 'r') as f:
+    with open(CONCEPT_PATH, 'r') as f:
         for l in f.readlines():
             l = l.strip()
             key_words = l.split(',')
@@ -12,3 +13,4 @@ if __name__ == '__main__':
                 key_words=l,
             ))
         dbsession.commit()
+        dbsession.close()

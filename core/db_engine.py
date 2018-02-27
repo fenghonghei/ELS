@@ -10,6 +10,18 @@ Base = declarative_base()
 
 
 # 定义表结构
+class Latlng(Base):
+    # 表名
+    __tablename__ = 'latlngs'
+    # 定义id,主键唯一,
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    city = Column(String(50))
+    address = Column(String(100))
+    lat_lng = Column(String(50))
+    create_time = Column(TIMESTAMP(True), nullable=False)
+
+
+# 定义表结构
 class Shop(Base):
     # 表名
     __tablename__ = 'shops'
@@ -21,6 +33,8 @@ class Shop(Base):
     phone = Column(String(50))
     flavors = Column(String(20))
     city = Column(String(20))
+    latlng_id = Column(Integer, ForeignKey('latlngs.id'))
+    latlng = Column(String(50))
     update_time = Column(TIMESTAMP(True), nullable=False)
     create_time = Column(TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
 
@@ -71,3 +85,4 @@ dbsession.execute('alter table records convert to character set utf8;')
 dbsession.execute('alter table foods convert to character set utf8;')
 dbsession.execute('alter table shops convert to character set utf8;')
 dbsession.execute('alter table food_concept convert to character set utf8;')
+dbsession.execute('alter table latlngs convert to character set utf8;')
