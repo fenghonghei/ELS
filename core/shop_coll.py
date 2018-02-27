@@ -4,7 +4,6 @@ import aiohttp
 
 from core.db_engine import dbsession, Shop, Latlng
 
-CITY_LATLNG_PATH = '../dependence/city_latlng.json'
 SHOP_URL = 'https://h5.ele.me/restapi/shopping/v3/restaurants'
 
 
