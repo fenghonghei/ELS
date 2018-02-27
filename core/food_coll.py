@@ -12,7 +12,17 @@ async def get_foods(shop_id):
     params = {'restaurant_id': shop_id}
     with (await semaphore):
         try:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(headers={
+                r'Host': r'h5.ele.me',
+                r'Connection': r'keep-alive',
+                r'User-Agent': r'Mozilla/5.0 (Linux; U; Android 5.1; zh-CN; MZ-m2 note Build/MRA58K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/40.0.2214.89 MZBrowser/6.10.2 UWS/2.11.0.33 Mobile Safari/537.36',
+                r'x-shard': r'shopid={};loc=114.273573,30.590624'.format(shop_id),
+                r'Accept': r'*/*',
+                r'Referer': r'https://h5.ele.me/shop/',
+                r'Accept-Encoding': r'gzip, deflate, br',
+                r'Accept-Language': r'zh-CN,en-US;q=0.8',
+                r'Cookie':r'ubt_ssid=nbouvov5sdvl4nbniquai795jrvi0vub_2018-02-27; perf_ssid=rn3toaudzil6ti5ru0y7hzq2dvbaipv5_2018-02-27; _utrace=a1d39d357cd6f361e1d3c461f7cfc236_2018-02-27',
+            }) as session:
                 async with session.get(FOOD_URL, params=params) as response:
                     data = await response.text()
                     src_foods = json.loads(data)
@@ -45,10 +55,8 @@ async def get_foods(shop_id):
                                 recent_popularity=recent_popularity
                             ))
                             dbsession.commit()
-                            return
         except Exception as e:
             print('{}店铺发生了{}'.format(shop_id, e))
-            return
 
 
 class FoodClassifier:
