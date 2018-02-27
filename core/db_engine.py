@@ -35,6 +35,7 @@ class Food(Base):
     shop_id = Column(Integer, ForeignKey('shops.id'))
     price = Column(Integer)
     recent_popularity = Column(Integer)
+    concept_ids = Column(String(50))
     update_time = Column(TIMESTAMP(True), nullable=False)
     create_time = Column(TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
 
@@ -50,6 +51,7 @@ class Record(Base):
     price = Column(Integer)
     old_popularity = Column(Integer)
     new_popularity = Column(Integer)
+    concept_ids = Column(String(50))
     create_time = Column(TIMESTAMP(True), nullable=False)
 
 
