@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, text, ForeignKey
+from sqlalchemy import Column, Integer, String, TIMESTAMP, text, ForeignKey, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
@@ -47,7 +47,7 @@ class Food(Base):
     id = Column(Integer, primary_key=True, autoincrement=False)
     name = Column(String(50))
     shop_id = Column(Integer, ForeignKey('shops.id'))
-    price = Column(Integer)
+    price = Column(Float)
     recent_popularity = Column(Integer)
     concept_ids = Column(String(50))
     update_time = Column(TIMESTAMP(True), nullable=False)
@@ -61,8 +61,7 @@ class Record(Base):
     # 定义id,主键唯一,
     id = Column(Integer, primary_key=True, autoincrement=True)
     food_id = Column(Integer, ForeignKey('foods.id'))
-    old_price = Column(Integer)
-    price = Column(Integer)
+    price = Column(Float)
     old_popularity = Column(Integer)
     new_popularity = Column(Integer)
     concept_ids = Column(String(50))
