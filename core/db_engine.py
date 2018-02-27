@@ -33,6 +33,8 @@ class Shop(Base):
     phone = Column(String(50))
     flavors = Column(String(20))
     city = Column(String(20))
+    latlng_id = Column(Integer, ForeignKey('latlngs.id'))
+    latlng = Column(String(50))
     update_time = Column(TIMESTAMP(True), nullable=False)
     create_time = Column(TIMESTAMP(True), nullable=False, server_default=text('NOW()'))
 

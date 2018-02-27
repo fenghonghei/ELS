@@ -2,18 +2,19 @@ import json
 import asyncio
 import aiohttp
 
-from core.db_engine import dbsession, Shop
+from core.db_engine import dbsession, Shop, Latlng
 
 CITY_LATLNG_PATH = '../dependence/city_latlng.json'
 SHOP_URL = 'https://h5.ele.me/restapi/shopping/v3/restaurants'
 
 
-async def get_shops(city, params):
+async def get_shops(city, params, latlng_id, latlng):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(SHOP_URL, params=params) as response:
                 data = await response.text()
                 restaurant__json = json.loads(data)
+                print(restaurant__json)
                 restaurant__list = restaurant__json['items']
                 for restaurant in restaurant__list:
                     restaurant = restaurant['restaurant']
@@ -31,6 +32,8 @@ async def get_shops(city, params):
                         name=shop_name,
                         address=shop_address,
                         city=city,
+                        latlng_id=latlng_id,
+                        latlng=latlng,
                         flavors=shop_flavor_ids[:-1],
                         openning_hours=shop_openning_hours,
                         phone=shop_phone
@@ -40,7 +43,7 @@ async def get_shops(city, params):
         print('{},{}'.format(params, e))
 
 
-async def get_pos_shops(city, latlng):
+async def get_pos_shops(latlng_id, latlng, city):
     semaphore = asyncio.Semaphore(4)
     with (await semaphore):
         lat_lng = latlng.split(',')
@@ -52,25 +55,20 @@ async def get_pos_shops(city, latlng):
             'terminal': 'h5',
             'order_by': 6,
         }
-        await get_shops(city, params)
+        await get_shops(city, params, latlng_id, latlng)
 
 
-def get_poses(city):
-    with open(CITY_LATLNG_PATH, 'r') as f:
-        city_latlngs = json.load(f)
-        return city_latlngs[city]
-
-
-def get_city_shops(city):
-    city_latlngs = get_poses(city)
+def get_city_shops():
     # 协程
     event_loop = asyncio.get_event_loop()
-    tasks = [get_pos_shops(city, latlng) for latlng in city_latlngs]
+    tasks = [
+        get_pos_shops(latlng_id, latlng, city)
+        for latlng_id, latlng, city in dbsession.query(Latlng.id, Latlng.lat_lng, Latlng.city)
+    ]
     event_loop.run_until_complete(asyncio.gather(*tasks))
 
 
 if __name__ == '__main__':
-    # 获取当前城市的店铺数据并写入数据库
-    get_city_shops('武汉')
+    get_city_shops()
     # 关闭Session
     dbsession.close()
