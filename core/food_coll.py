@@ -6,9 +6,10 @@ from core.db_engine import dbsession, Shop, Food, Record, FoodConcept
 
 FOOD_URL = 'https://h5.ele.me/restapi/shopping/v2/menu'
 
+semaphore = asyncio.Semaphore(1)
+
 
 async def get_foods(shop_id):
-    semaphore = asyncio.Semaphore(1)
     params = {'restaurant_id': shop_id}
     with (await semaphore):
         try:
@@ -42,6 +43,7 @@ async def get_foods(shop_id):
                             if old_food and old_food.recent_popularity != recent_popularity:
                                 dbsession.add(Record(
                                     food_id=food_id,
+                                    food=food_name,
                                     price=price,
                                     concept_ids=str(class_id),
                                     old_popularity=old_food.recent_popularity,
