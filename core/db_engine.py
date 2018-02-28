@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 # 创建数据库
-engine = create_engine("mysql+pymysql://root:900909@localhost:3306/test?charset=utf8")
+engine = create_engine("mysql+pymysql://root:guanzizai@localhost:3306/test?charset=utf8")
 # 生成一个SqlORM 基类
 Base = declarative_base()
 
