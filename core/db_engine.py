@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 # 创建数据库
-engine = create_engine("mysql+pymysql://root:900909@localhost:3306/test?charset=utf8")
+engine = create_engine("mysql+pymysql://root:guanzizai@localhost:3306/test?charset=utf8")
 # 生成一个SqlORM 基类
 Base = declarative_base()
 
@@ -76,6 +76,14 @@ class FoodConcept(Base):
     key_words = Column(String(50))
 
 
+class Flavor(Base):
+    __tablename__ = 'flavors'
+    id = Column(Integer, primary_key=True, autoincrement=False)
+    name = Column(String(50))
+    level = Column(Integer)
+    parent_id = Column(Integer)
+
+
 # 寻找Base的所有子类，按照子类的结构在数据库中生成对应的数据表信息
 Base.metadata.create_all(engine)
 # 创建与数据库的会话session class ,注意,这里返回给session的是个class,不是实例
@@ -86,3 +94,4 @@ dbsession.execute('alter table foods convert to character set utf8;')
 dbsession.execute('alter table shops convert to character set utf8;')
 dbsession.execute('alter table food_concept convert to character set utf8;')
 dbsession.execute('alter table latlngs convert to character set utf8;')
+dbsession.execute('alter table flavors convert to character set utf8;')
