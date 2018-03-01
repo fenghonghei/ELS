@@ -13,7 +13,10 @@ class FlavorItem:
 
 
 def get_flavors(flavor_category, parent_id):
-    flavors = [FlavorItem(flavor_category['id'], flavor_category['name'], flavor_category['level'], parent_id)] if '全部' not in flavor_category['name'] else []
+    flavors = [
+        FlavorItem(flavor_category['id'], flavor_category['name'], flavor_category['level'], parent_id)] if '全部' not in \
+                                                                                                            flavor_category[
+                                                                                                                'name'] else []
     if 'sub_categories' in flavor_category:
         for fc in flavor_category['sub_categories']:
             flavors.extend(get_flavors(fc, flavor_category['id']))
@@ -31,10 +34,11 @@ def main():
                 flavors.extend(get_flavors(flavor_category, None))
         flavors = list(sorted(flavors, key=lambda fl: fl.id))
         flavors = [Flavor(
-                id=flavor.id,
-                name=flavor.name,
-                level=flavor.level,
-                parent_id=flavor.parent_id
-            ) for flavor in flavors]
-        dbsession.add_all(flavors)
+            id=flavor.id,
+            name=flavor.name,
+            level=flavor.level,
+            parent_id=flavor.parent_id
+        ) for flavor in flavors]
+        for flavor in flavors:
+            dbsession.merge(flavor)
         dbsession.commit()

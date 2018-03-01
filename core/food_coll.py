@@ -28,7 +28,7 @@ async def get_foods(session, shop_id, ip):
         params = {'restaurant_id': shop_id}
         print('剩余店铺量： {}'.format(len(shop_ids)))
         try:
-            async with session.get(FOOD_URL, params=params, proxy=ip) as response:
+            async with session.get(FOOD_URL, params=params, proxy=ip, timeout=10) as response:
                 data = await response.text()
                 src_foods = json.loads(data)
                 for src_food in src_foods:
@@ -61,7 +61,10 @@ async def get_foods(session, shop_id, ip):
                             recent_popularity=recent_popularity
                         ))
                         dbsession.commit()
-                shop_ids.remove(shop_id)
+                if len(src_foods):
+                    shop_ids.remove(shop_id)
+                else:
+                    print('********fail*********')
         except Exception as e:
             print('{},{}'.format(shop_id, e))
 
@@ -88,10 +91,11 @@ def main():
 
     global shop_ids
     shop_ids = [t[0] for t in dbsession.query(Shop.id)]
-    ips = ip_coll.get_success_ips()
-    ix = -1
+    # ips = ip_coll.get_success_ips()
+    # ips.insert(0, None)
+    # ix = 0
     while len(shop_ids) > 0:
-        ip = None if ix == -1 else ips[ix % len(shop_ids)]
-        event_loop.run_until_complete(start_batch_coll(ip))
-        ix += 1
+        # ip = ips[ix % len(shop_ids)]
+        event_loop.run_until_complete(start_batch_coll(None))
+        # ix += 1
     dbsession.close()

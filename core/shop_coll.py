@@ -50,7 +50,7 @@ async def get_pos_shops(latlng_id, latlng, city):
             'latitude': lat_lng[0],
             'longitude': lat_lng[1],
             'offset': 0,
-            'limit': 10,
+            'limit': 50,
             'terminal': 'h5',
             'order_by': 6,
         }

@@ -9,7 +9,7 @@ def main():
             l = l.strip()
             key_words = l.split(',')
             concept_name = key_words[0].strip()
-            dbsession.add(FoodConcept(
+            dbsession.merge(FoodConcept(
                 name=concept_name,
                 key_words=l,
             ))
