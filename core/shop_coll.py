@@ -67,7 +67,7 @@ def get_city_shops():
     event_loop.run_until_complete(asyncio.gather(*tasks))
 
 
-if __name__ == '__main__':
+def main():
     get_city_shops()
     # 关闭Session
     dbsession.close()

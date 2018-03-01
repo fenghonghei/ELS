@@ -60,6 +60,6 @@ def get_latlngs(city):
         dbsession.commit()
 
 
-if __name__ == '__main__':
+def main():
     get_latlngs(CITY)
     dbsession.close()

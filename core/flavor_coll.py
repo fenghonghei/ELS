@@ -20,7 +20,7 @@ def get_flavors(flavor_category, parent_id):
     return flavors
 
 
-if __name__ == '__main__':
+def main():
     with open(FLAVOR_FILE_PATH, 'r') as f:
         flavors_json = json.loads(f.read())
         flavors = []
