@@ -12,7 +12,6 @@ semaphore = asyncio.Semaphore(1)
 
 async def get_foods(session, shop_id, ip):
     params = {'restaurant_id': shop_id}
-    failed_sids = []
     try:
         async with session.get(FOOD_URL, params=params, proxy=ip) as response:
             data = await response.text()
@@ -48,7 +47,7 @@ async def get_foods(session, shop_id, ip):
                         recent_popularity=recent_popularity
                     ))
                     dbsession.commit()
-                    shop_ids.remove(shop_id)
+            shop_ids.remove(shop_id)
     except Exception as e:
         print('{},{}'.format(shop_id, e))
 
@@ -90,7 +89,7 @@ def grep_food_data(shop_ids, ip):
 if __name__ == '__main__':
     # 创建分类器
     food_classifer = FoodClassifier()
-    shop_ids = [t[0] for t in dbsession.query(Shop.id)]
+    shop_ids = [t[0] for t in dbsession.query(Shop.id)][:1]
     event_loop = asyncio.get_event_loop()
     ips = ip_coll.get_success_ips()
     ix = -1
