@@ -2,7 +2,8 @@ from core.db_engine import dbsession, FoodConcept
 
 CONCEPT_PATH = '../dependence/food_concept'
 
-if __name__ == '__main__':
+
+def main():
     with open(CONCEPT_PATH, 'r') as f:
         for l in f.readlines():
             l = l.strip()

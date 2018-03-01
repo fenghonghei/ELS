@@ -1,8 +1,9 @@
-import json
 import asyncio
-import aiohttp
-import core.ip_coll as ip_coll
+import json
 
+import aiohttp
+
+import core.ip_coll as ip_coll
 from core.db_engine import dbsession, Shop, Food, Record, FoodConcept
 
 FOOD_URL = 'https://h5.ele.me/restapi/shopping/v2/menu'
@@ -65,40 +66,32 @@ async def get_foods(session, shop_id, ip):
             print('{},{}'.format(shop_id, e))
 
 
-async def creat_session(shop_id, ip):
-    async with aiohttp.ClientSession(headers={
-        r'Host': r'h5.ele.me',
-        r'Connection': r'keep-alive',
-        r'User-Agent': r'Mozilla/5.0 (Linux; U; Android 5.1; zh-CN; MZ-m2 note Build/MRA58K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/40.0.2214.89 MZBrowser/6.10.2 UWS/2.11.0.33 Mobile Safari/537.36',
-        r'x-shard': r'shopid={};loc=114.273573,30.590624'.format(shop_id),
-        r'Accept': r'*/*',
-        r'Referer': r'https://h5.ele.me/shop/',
-        r'Accept-Encoding': r'gzip, deflate, br',
-        r'Accept-Language': r'zh-CN,en-US;q=0.8',
-        r'Cookie': r'ubt_ssid=nbouvov5sdvl4nbniquai795jrvi0vub_2018-02-27; perf_ssid=rn3toaudzil6ti5ru0y7hzq2dvbaipv5_2018-02-27; _utrace=a1d39d357cd6f361e1d3c461f7cfc236_2018-02-27',
-    }) as session:
+async def creat_session(ip):
+    async with aiohttp.ClientSession() as session:
         tmp_sids = [sid for sid in shop_ids]
         tasks = [get_foods(session, sid, ip) for sid in tmp_sids]
         await asyncio.gather(*tasks)
 
 
-async def start_batch_coll(shop_ids, ip):
+async def start_batch_coll(ip):
     print('更换proxy{}继续爬取数据'.format(ip))
-    task = asyncio.ensure_future(creat_session(shop_ids, ip))
+    task = asyncio.ensure_future(creat_session(ip))
     await task
 
 
-if __name__ == '__main__':
+def main():
     # 创建分类器
+    global food_classifer
     food_classifer = FoodClassifier()
 
     event_loop = asyncio.get_event_loop()
 
+    global shop_ids
     shop_ids = [t[0] for t in dbsession.query(Shop.id)]
     ips = ip_coll.get_success_ips()
     ix = -1
     while len(shop_ids) > 0:
         ip = None if ix == -1 else ips[ix % len(shop_ids)]
-        event_loop.run_until_complete(start_batch_coll(shop_ids, ip))
+        event_loop.run_until_complete(start_batch_coll(ip))
         ix += 1
     dbsession.close()

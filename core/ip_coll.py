@@ -1,6 +1,5 @@
 import asyncio
 import re
-import time
 
 import aiohttp
 import chardet
