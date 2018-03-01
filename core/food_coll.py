@@ -1,6 +1,7 @@
 import json
 import asyncio
 import aiohttp
+import core.ip_coll as ip_coll
 
 from core.db_engine import dbsession, Shop, Food, Record, FoodConcept
 
@@ -9,10 +10,11 @@ FOOD_URL = 'https://h5.ele.me/restapi/shopping/v2/menu'
 semaphore = asyncio.Semaphore(1)
 
 
-async def get_foods(session, shop_id):
+async def get_foods(session, shop_id, ip):
     params = {'restaurant_id': shop_id}
+    failed_sids = []
     try:
-        async with session.get(FOOD_URL, params=params) as response:
+        async with session.get(FOOD_URL, params=params, proxy=ip) as response:
             data = await response.text()
             print(data)
             src_foods = json.loads(data)
@@ -46,11 +48,12 @@ async def get_foods(session, shop_id):
                         recent_popularity=recent_popularity
                     ))
                     dbsession.commit()
+                    shop_ids.remove(shop_id)
     except Exception as e:
         print('{},{}'.format(shop_id, e))
 
 
-async def creat_session(shop_id):
+async def creat_session(shop_id, ip):
     with (await semaphore):
         async with aiohttp.ClientSession(headers={
             r'Host': r'h5.ele.me',
@@ -63,7 +66,7 @@ async def creat_session(shop_id):
             r'Accept-Language': r'zh-CN,en-US;q=0.8',
             r'Cookie': r'ubt_ssid=nbouvov5sdvl4nbniquai795jrvi0vub_2018-02-27; perf_ssid=rn3toaudzil6ti5ru0y7hzq2dvbaipv5_2018-02-27; _utrace=a1d39d357cd6f361e1d3c461f7cfc236_2018-02-27',
         }) as session:
-            await get_foods(session, shop_id)
+            await get_foods(session, shop_id, ip)
 
 
 class FoodClassifier:
@@ -78,12 +81,21 @@ class FoodClassifier:
         return -1
 
 
+def grep_food_data(shop_ids, ip):
+    tmp_sids = [sid for sid in shop_ids]
+    tasks = [creat_session(sid, ip) for sid in tmp_sids]
+    event_loop.run_until_complete(asyncio.gather(*tasks))
+
+
 if __name__ == '__main__':
     # 创建分类器
     food_classifer = FoodClassifier()
-
+    shop_ids = [t[0] for t in dbsession.query(Shop.id)]
     event_loop = asyncio.get_event_loop()
-    tasks = [creat_session(shop_id_tuple[0]) for shop_id_tuple in dbsession.query(Shop.id)]
-    event_loop.run_until_complete(asyncio.gather(*tasks))
-
+    ips = ip_coll.get_success_ips()
+    ix = -1
+    while len(shop_ids) > 0:
+        ip = None if ix == -1 else ips[ix % len(shop_ids)]
+        grep_food_data(shop_ids, ip)
+        ix += 1
     dbsession.close()
