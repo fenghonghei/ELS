@@ -8,7 +8,7 @@ from core.db_engine import dbsession, Shop, Food, Record, FoodConcept
 
 FOOD_URL = 'https://h5.ele.me/restapi/shopping/v2/menu'
 
-semaphore = asyncio.Semaphore(1)
+semaphore = asyncio.Semaphore(2)
 
 
 class FoodClassifier:
@@ -27,8 +27,19 @@ async def get_foods(session, shop_id, ip):
     with (await semaphore):
         params = {'restaurant_id': shop_id}
         print('剩余店铺量： {}'.format(len(shop_ids)))
+        headers = {
+            r'Host': r'h5.ele.me',
+            r'Connection': r'keep-alive',
+            r'User-Agent': r'Mozilla/5.0 (Linux; U; Android 5.1; zh-CN; MZ-m2 note Build/MRA58K) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/40.0.2214.89 MZBrowser/6.10.2 UWS/2.11.0.33 Mobile Safari/537.36',
+            r'x-shard': r'shopid={};loc=114.273573,30.590624'.format(shop_id),
+            r'Accept': r'*/*',
+            r'Referer': r'https://h5.ele.me/shop/',
+            r'Accept-Encoding': r'gzip, deflate, br',
+            r'Accept-Language': r'zh-CN,en-US;q=0.8',
+            r'Cookie': r'ubt_ssid=nbouvov5sdvl4nbniquai795jrvi0vub_2018-02-27; perf_ssid=rn3toaudzil6ti5ru0y7hzq2dvbaipv5_2018-02-27; _utrace=a1d39d357cd6f361e1d3c461f7cfc236_2018-02-27',
+        }
         try:
-            async with session.get(FOOD_URL, params=params, proxy=ip, timeout=10) as response:
+            async with session.get(FOOD_URL, headers=headers, params=params, proxy=ip, timeout=10) as response:
                 data = await response.text()
                 src_foods = json.loads(data)
                 for src_food in src_foods:
@@ -77,7 +88,7 @@ async def creat_session(ip):
 
 
 async def start_batch_coll(ip):
-    print('更换proxy{}继续爬取数据'.format(ip))
+    print('开始新批次')
     task = asyncio.ensure_future(creat_session(ip))
     await task
 
