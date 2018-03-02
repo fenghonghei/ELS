@@ -6,6 +6,9 @@ from core.db_engine import dbsession, Shop, Latlng
 
 SHOP_URL = 'https://h5.ele.me/restapi/shopping/v3/restaurants'
 
+semaphore = asyncio.Semaphore(1)
+limit = 30
+
 
 async def get_shops(city, params, latlng_id, latlng):
     try:
@@ -13,7 +16,6 @@ async def get_shops(city, params, latlng_id, latlng):
             async with session.get(SHOP_URL, params=params) as response:
                 data = await response.text()
                 restaurant__json = json.loads(data)
-                print(restaurant__json)
                 restaurant__list = restaurant__json['items']
                 for restaurant in restaurant__list:
                     restaurant = restaurant['restaurant']
@@ -43,18 +45,18 @@ async def get_shops(city, params, latlng_id, latlng):
 
 
 async def get_pos_shops(latlng_id, latlng, city):
-    semaphore = asyncio.Semaphore(4)
     with (await semaphore):
         lat_lng = latlng.split(',')
-        params = {
-            'latitude': lat_lng[0],
-            'longitude': lat_lng[1],
-            'offset': 0,
-            'limit': 50,
-            'terminal': 'h5',
-            'order_by': 6,
-        }
-        await get_shops(city, params, latlng_id, latlng)
+        for page in range(20):
+            params = {
+                'latitude': lat_lng[0],
+                'longitude': lat_lng[1],
+                'offset': limit * page,
+                'limit': limit * (page + 1),
+                'terminal': 'h5',
+                'order_by': 6,
+            }
+            await get_shops(city, params, latlng_id, latlng)
 
 
 def get_city_shops():
