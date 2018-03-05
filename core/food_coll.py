@@ -77,6 +77,8 @@ async def get_foods(session, shop_id, ip):
                             dbsession.rollback()
                 if len(src_foods):
                     shop_ids.remove(shop_id)
+                    with open('shops.txt', 'at') as f:
+                        f.writelines(str(shop_id) + '\n')
                 else:
                     print('********fail*********')
         except Exception as e:
