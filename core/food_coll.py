@@ -71,7 +71,10 @@ async def get_foods(session, shop_id, ip):
                             concept_ids=str(class_id),
                             recent_popularity=recent_popularity
                         ))
-                        dbsession.commit()
+                        try:
+                            dbsession.commit()
+                        except:
+                            dbsession.rollback()
                 if len(src_foods):
                     shop_ids.remove(shop_id)
                 else:
